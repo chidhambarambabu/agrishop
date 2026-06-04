@@ -33,6 +33,7 @@ const sendOTPEmail = async (email, otp) => {
     `
   });
 };
+
 // ── Generate JWT ──────────────────────────────────────────────────
 const generateToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
@@ -53,7 +54,7 @@ const register = async (req, res) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
   const otp = generateOTP();
-  const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+  const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
 
   const user = await User.create({
     name,
@@ -66,12 +67,19 @@ const register = async (req, res) => {
     otpExpiry
   });
 
-  await sendOTPEmail(email, otp);
-
+  // Send response immediately — don't wait for email
   res.status(201).json({
     message: 'Registration successful. OTP sent to your email.',
     userId: user._id
   });
+
+  // Send email in background after response
+  try {
+    await sendOTPEmail(email, otp);
+    console.log('✅ OTP email sent to:', email);
+  } catch (emailError) {
+    console.log('❌ Email error:', emailError.message);
+  }
 };
 
 // ── VERIFY OTP ────────────────────────────────────────────────────
@@ -168,9 +176,16 @@ const resendOTP = async (req, res) => {
   user.otpExpiry = otpExpiry;
   await user.save();
 
-  await sendOTPEmail(user.email, otp);
-
+  // Send response immediately
   res.json({ message: 'OTP resent successfully' });
+
+  // Send email in background
+  try {
+    await sendOTPEmail(user.email, otp);
+    console.log('✅ Resend OTP email sent to:', user.email);
+  } catch (emailError) {
+    console.log('❌ Resend email error:', emailError.message);
+  }
 };
 
 module.exports = { register, verifyOTP, login, resendOTP };
