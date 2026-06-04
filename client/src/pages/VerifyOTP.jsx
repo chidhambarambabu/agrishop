@@ -7,7 +7,7 @@ const VerifyOTP = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
-  const { userId, email } = location.state || {};
+  const { userId, email, otp: devOtp } = location.state || {};
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -29,8 +29,8 @@ const VerifyOTP = () => {
 
   const handleResend = async () => {
     try {
-      await API.post('/auth/resend-otp', { userId });
-      alert('OTP resent to your email!');
+      const { data } = await API.post('/auth/resend-otp', { userId });
+      alert(`OTP resent! ${data.otp ? `Your OTP is: ${data.otp}` : 'Check your email'}`);
     } catch (err) {
       setError('Failed to resend OTP');
     }
@@ -41,9 +41,16 @@ const VerifyOTP = () => {
       <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md text-center">
         <div className="text-6xl mb-4">📧</div>
         <h2 className="text-3xl font-bold text-green-700 mb-2">Verify Your Email</h2>
-        <p className="text-gray-500 mb-6">
+        <p className="text-gray-500 mb-4">
           We sent a 6-digit OTP to <strong>{email}</strong>
         </p>
+
+        {/* Show OTP on screen for testing */}
+        {devOtp && (
+          <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 p-3 rounded-lg mb-4 text-sm">
+            🔑 Your OTP: <strong className="text-2xl tracking-widest">{devOtp}</strong>
+          </div>
+        )}
 
         {error && (
           <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm">{error}</div>
