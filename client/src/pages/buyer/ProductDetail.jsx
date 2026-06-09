@@ -152,6 +152,18 @@ const ProductDetail = () => {
                   required
                 />
               </div>
+              <div className="bg-green-50 h-56 flex items-center justify-center text-8xl overflow-hidden">
+  {product.image ? (
+    <img src={product.image} alt={product.name}
+      className="w-full h-full object-cover" />
+  ) : (
+    product.category === 'vegetables' ? '🥦' :
+    product.category === 'fruits' ? '🍎' :
+    product.category === 'grains' ? '🌾' :
+    product.category === 'dairy' ? '🥛' :
+    product.category === 'spices' ? '🌶️' : '📦'
+  )}
+</div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
