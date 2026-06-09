@@ -5,7 +5,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Landing from './pages/Landing';
 import Register from './pages/Register';
 import Login from './pages/Login';
-import VerifyOTP from './pages/VerifyOTP';
 import NotFound from './pages/NotFound';
 import FarmerDashboard from './pages/farmer/FarmerDashboard';
 import AddProduct from './pages/farmer/AddProduct';
@@ -23,7 +22,6 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/verify-otp" element={<VerifyOTP />} />
 
           {/* Farmer Routes */}
           <Route path="/farmer/dashboard" element={

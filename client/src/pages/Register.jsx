@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import API from '../api/axios';
+import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [form, setForm] = useState({
     name: '', email: '', password: '', phone: '', role: 'buyer', place: ''
   });
@@ -18,7 +20,8 @@ const Register = () => {
     setError('');
     try {
       const { data } = await API.post('/auth/register', form);
-      navigate('/verify-otp', { state: { userId: data.userId, email: form.email } });
+      login(data.user, data.token);
+      navigate(data.user.role === 'farmer' ? '/farmer/dashboard' : '/buyer/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
     } finally {
