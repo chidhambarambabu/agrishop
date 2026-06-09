@@ -29,18 +29,21 @@ const Navbar = () => {
           </>
         ) : (
           <>
-            <span className="text-green-200 text-sm">
-              Hi, {user.name} ({user.role})
-            </span>
             <Link
               to={user.role === 'farmer' ? '/farmer/dashboard' : '/buyer/dashboard'}
-              className="hover:text-green-200 transition"
+              className="hover:text-green-200 transition text-sm"
             >
               Dashboard
             </Link>
+            <Link
+              to="/profile"
+              className="hover:text-green-200 transition text-sm"
+            >
+              👤 {user.name}
+            </Link>
             <button
               onClick={handleLogout}
-              className="bg-red-500 px-4 py-2 rounded-lg hover:bg-red-600 transition"
+              className="bg-red-500 px-4 py-2 rounded-lg hover:bg-red-600 transition text-sm"
             >
               Logout
             </button>

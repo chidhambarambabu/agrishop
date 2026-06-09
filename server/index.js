@@ -10,10 +10,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-
 app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/products', require('./routes/productRoutes'));  // ← add this
-app.use('/api/orders', require('./routes/orderRoutes'));      // ← add this
+app.use('/api/products', require('./routes/productRoutes'));
+app.use('/api/orders', require('./routes/orderRoutes'));
+app.use('/api/users', require('./routes/userRoutes'));
+
 app.get('/', (req, res) => {
   res.json({ message: 'AgriShop API is running 🌾' });
 });

@@ -12,6 +12,7 @@ import ManageOrders from './pages/farmer/ManageOrders';
 import BuyerDashboard from './pages/buyer/BuyerDashboard';
 import ProductDetail from './pages/buyer/ProductDetail';
 import MyOrders from './pages/buyer/MyOrders';
+import Profile from './pages/Profile';
 
 function App() {
   return (
@@ -22,6 +23,9 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/profile" element={
+  <ProtectedRoute><Profile /></ProtectedRoute>
+} />
 
           {/* Farmer Routes */}
           <Route path="/farmer/dashboard" element={
