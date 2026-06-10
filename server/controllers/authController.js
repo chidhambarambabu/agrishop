@@ -21,13 +21,8 @@ const register = async (req, res) => {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const user = await User.create({
-    name,
-    email,
-    password: hashedPassword,
-    phone,
-    role,
-    place,
-    isVerified: true
+    name, email, password: hashedPassword,
+    phone, role, place, isVerified: true
   });
 
   const token = generateToken(user._id);
@@ -40,7 +35,8 @@ const register = async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
-      place: user.place
+      place: user.place,
+      isAdmin: user.isAdmin
     }
   });
 };
@@ -72,7 +68,8 @@ const login = async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
-      place: user.place
+      place: user.place,
+      isAdmin: user.isAdmin
     }
   });
 };

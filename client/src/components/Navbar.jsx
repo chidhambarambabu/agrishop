@@ -20,31 +20,30 @@ const Navbar = () => {
         {!user ? (
           <>
             <Link to="/login" className="hover:text-green-200 transition">Login</Link>
-            <Link
-              to="/register"
-              className="bg-white text-green-700 px-4 py-2 rounded-lg font-semibold hover:bg-green-100 transition"
-            >
+            <Link to="/register"
+              className="bg-white text-green-700 px-4 py-2 rounded-lg font-semibold hover:bg-green-100 transition">
               Register
             </Link>
           </>
         ) : (
           <>
+            {user.isAdmin && (
+              <Link to="/admin/dashboard"
+                className="bg-yellow-400 text-gray-900 px-3 py-1 rounded-lg text-sm font-bold hover:bg-yellow-300 transition">
+                🛡️ Admin
+              </Link>
+            )}
             <Link
               to={user.role === 'farmer' ? '/farmer/dashboard' : '/buyer/dashboard'}
               className="hover:text-green-200 transition text-sm"
             >
               Dashboard
             </Link>
-            <Link
-              to="/profile"
-              className="hover:text-green-200 transition text-sm"
-            >
+            <Link to="/profile" className="hover:text-green-200 transition text-sm">
               👤 {user.name}
             </Link>
-            <button
-              onClick={handleLogout}
-              className="bg-red-500 px-4 py-2 rounded-lg hover:bg-red-600 transition text-sm"
-            >
+            <button onClick={handleLogout}
+              className="bg-red-500 px-4 py-2 rounded-lg hover:bg-red-600 transition text-sm">
               Logout
             </button>
           </>
