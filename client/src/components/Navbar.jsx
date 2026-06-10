@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import NotificationBell from './NotificationBell';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -39,6 +40,7 @@ const Navbar = () => {
             >
               Dashboard
             </Link>
+            <NotificationBell />
             <Link to="/profile" className="hover:text-green-200 transition text-sm">
               👤 {user.name}
             </Link>
