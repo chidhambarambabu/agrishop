@@ -63,6 +63,19 @@ const login = async (req, res) => {
   }
 
   const token = generateToken(user._id);
+  useEffect(() => {
+  // Clear any old localStorage data
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+
+  const savedToken = sessionStorage.getItem('token');
+  const savedUser = sessionStorage.getItem('user');
+  if (savedToken && savedUser) {
+    setToken(savedToken);
+    setUser(JSON.parse(savedUser));
+  }
+  setLoading(false);
+}, []);
 
   res.json({
     message: 'Login successful',
