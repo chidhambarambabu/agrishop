@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import API from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 
 const FarmerDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,6 +28,19 @@ const FarmerDashboard = () => {
     };
     fetchData();
   }, []);
+
+  const handleDeleteProduct = async (productId) => {
+    if (!window.confirm('Are you sure you want to delete this product?')) return;
+    setDeleting(productId);
+    try {
+      await API.delete(`/products/${productId}`);
+      setProducts(products.filter(p => p._id !== productId));
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to delete product');
+    } finally {
+      setDeleting(null);
+    }
+  };
 
   const pendingOrders = orders.filter(o => o.status === 'placed').length;
   const deliveredOrders = orders.filter(o => o.status === 'delivered').length;
@@ -109,22 +124,56 @@ const FarmerDashboard = () => {
                     <th className="text-left p-3">Category</th>
                     <th className="text-left p-3">Price</th>
                     <th className="text-left p-3">Stock</th>
-                    <th className="text-left p-3 rounded-r-lg">Status</th>
+                    <th className="text-left p-3">Status</th>
+                    <th className="text-left p-3 rounded-r-lg">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {products.map((p) => (
                     <tr key={p._id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="p-3 font-medium text-gray-800">{p.name}</td>
+                      <td className="p-3">
+                        <div className="flex items-center gap-2">
+                          {p.image ? (
+                            <img src={p.image} alt={p.name}
+                              className="w-10 h-10 rounded-lg object-cover" />
+                          ) : (
+                            <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center text-xl">
+                              🌿
+                            </div>
+                          )}
+                          <span className="font-medium text-gray-800">{p.name}</span>
+                        </div>
+                      </td>
                       <td className="p-3 capitalize text-gray-600">{p.category}</td>
-                      <td className="p-3 text-green-600 font-semibold">₹{p.price}/{p.unit}</td>
+                      <td className="p-3 text-green-600 font-semibold">
+                        ₹{p.price}/{p.unit}
+                      </td>
                       <td className="p-3 text-gray-600">{p.quantity} {p.unit}</td>
                       <td className="p-3">
                         <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                          p.isAvailable ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                          p.isAvailable
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-red-100 text-red-700'
                         }`}>
                           {p.isAvailable ? 'Available' : 'Out of Stock'}
                         </span>
+                      </td>
+                      <td className="p-3">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => navigate(`/farmer/edit-product/${p._id}`)}
+                            className="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-xs font-semibold hover:bg-blue-200 transition"
+                          >
+                            ✏️ Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteProduct(p._id)}
+                            disabled={deleting === p._id}
+                            className="bg-red-100 text-red-700 px-3 py-1 rounded-lg text-xs font-semibold hover:bg-red-200 transition disabled:opacity-50"
+                          >
+                            {deleting === p._id ? '...' : '🗑️ Delete'}
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -138,7 +187,8 @@ const FarmerDashboard = () => {
         <div className="bg-white rounded-2xl shadow-md p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold text-gray-800">Recent Orders</h2>
-            <Link to="/farmer/orders" className="text-green-600 hover:underline text-sm font-semibold">
+            <Link to="/farmer/orders"
+              className="text-green-600 hover:underline text-sm font-semibold">
               View All
             </Link>
           </div>
@@ -151,14 +201,17 @@ const FarmerDashboard = () => {
           ) : (
             <div className="space-y-3">
               {orders.slice(0, 5).map((order) => (
-                <div key={order._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                <div key={order._id}
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
                   <div>
                     <p className="font-medium text-gray-800">{order.product?.name}</p>
-                    <p className="text-sm text-gray-500">Buyer: {order.buyer?.name} • Qty: {order.quantity}</p>
+                    <p className="text-sm text-gray-500">
+                      Buyer: {order.buyer?.name} • Qty: {order.quantity}
+                    </p>
                   </div>
                   <div className="text-right">
                     <p className="font-bold text-green-600">₹{order.totalPrice}</p>
-                    <span className={`text-xs px-2 py-1 rounded-full font-semibold ${
+                    <span className={`text-xs px-2 py-1 rounded-full font-semibold capitalize ${
                       order.status === 'placed' ? 'bg-yellow-100 text-yellow-700' :
                       order.status === 'delivered' ? 'bg-green-100 text-green-700' :
                       order.status === 'cancelled' ? 'bg-red-100 text-red-700' :

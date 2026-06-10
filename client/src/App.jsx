@@ -14,6 +14,7 @@ import BuyerDashboard from './pages/buyer/BuyerDashboard';
 import ProductDetail from './pages/buyer/ProductDetail';
 import MyOrders from './pages/buyer/MyOrders';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import EditProduct from './pages/farmer/EditProduct';
 
 function App() {
   return (
@@ -55,6 +56,9 @@ function App() {
           <Route path="/admin/dashboard" element={
             <ProtectedRoute><AdminDashboard /></ProtectedRoute>
           } />
+          <Route path="/farmer/edit-product/:id" element={
+  <ProtectedRoute role="farmer"><EditProduct /></ProtectedRoute>
+} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>
