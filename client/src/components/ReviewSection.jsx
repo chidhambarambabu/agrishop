@@ -66,7 +66,7 @@ const ReviewSection = ({ productId }) => {
     : 0;
 
   return (
-    <div className="mt-8">
+    <div className="mt-4">
       <h2 className="text-xl font-bold text-gray-800 mb-4">
         Reviews & Ratings
         {reviews.length > 0 && (
@@ -89,10 +89,13 @@ const ReviewSection = ({ productId }) => {
         </div>
       )}
 
-      {/* Add Review Form - buyers only */}
-      {user?.role === 'buyer' && (
+      {/* Add Review Form - show for ALL logged in users for now */}
+      {user && (
         <div className="bg-white border border-gray-200 rounded-xl p-4 mb-6">
           <h3 className="font-semibold text-gray-700 mb-3">Write a Review</h3>
+          <p className="text-xs text-gray-400 mb-3">
+            Logged in as: {user.name} ({user.role})
+          </p>
 
           {success && (
             <div className="bg-green-50 text-green-600 p-2 rounded-lg mb-3 text-sm">
@@ -135,9 +138,18 @@ const ReviewSection = ({ productId }) => {
         </div>
       )}
 
+      {/* Not logged in message */}
+      {!user && (
+        <div className="bg-gray-50 rounded-xl p-4 mb-6 text-center text-gray-500 text-sm">
+          Please login to write a review
+        </div>
+      )}
+
       {/* Reviews List */}
       {loading ? (
-        <div className="text-center py-4 text-gray-500 animate-pulse">Loading reviews...</div>
+        <div className="text-center py-4 text-gray-500 animate-pulse">
+          Loading reviews...
+        </div>
       ) : reviews.length === 0 ? (
         <div className="text-center py-8 text-gray-400">
           <div className="text-4xl mb-2">⭐</div>
@@ -146,7 +158,8 @@ const ReviewSection = ({ productId }) => {
       ) : (
         <div className="space-y-4">
           {reviews.map((review) => (
-            <div key={review._id} className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
+            <div key={review._id}
+              className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
               <div className="flex justify-between items-start mb-2">
                 <div>
                   <p className="font-semibold text-gray-800">{review.buyer?.name}</p>
@@ -160,7 +173,7 @@ const ReviewSection = ({ productId }) => {
                 </div>
               </div>
               <p className="text-gray-600 text-sm">{review.comment}</p>
-              {user?._id === review.buyer?._id && (
+              {user?.id === review.buyer?._id && (
                 <button
                   onClick={() => handleDelete(review._id)}
                   className="mt-2 text-red-400 hover:text-red-600 text-xs"
