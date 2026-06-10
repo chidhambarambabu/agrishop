@@ -6,24 +6,15 @@ const notificationSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
-  title: {
-    type: String,
-    required: true
-  },
-  message: {
-    type: String,
-    required: true
-  },
+  title: { type: String, required: true },
+  message: { type: String, required: true },
   type: {
     type: String,
     enum: ['order_placed', 'order_confirmed', 'order_shipped',
            'order_delivered', 'order_cancelled', 'new_review'],
     required: true
   },
-  isRead: {
-    type: Boolean,
-    default: false
-  },
+  isRead: { type: Boolean, default: false },
   orderId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Order'
