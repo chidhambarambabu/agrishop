@@ -13,13 +13,8 @@ const addProduct = async (req, res) => {
 
   const product = await Product.create({
     farmer: req.user._id,
-    name,
-    description,
-    category,
-    price,
-    quantity,
-    unit,
-    locality,
+    name, description, category, price, quantity,
+    unit, locality,
     shippingCharges: shippingCharges || 0,
     image: imageUrl
   });
@@ -29,15 +24,26 @@ const addProduct = async (req, res) => {
 
 // ── GET ALL PRODUCTS ──────────────────────────────────────────────
 const getAllProducts = async (req, res) => {
-  const { category, search } = req.query;
+  const { category, search, minPrice, maxPrice, sortBy } = req.query;
 
   let filter = { isAvailable: true, quantity: { $gt: 0 } };
   if (category) filter.category = category;
   if (search) filter.name = { $regex: search, $options: 'i' };
+  if (minPrice || maxPrice) {
+    filter.price = {};
+    if (minPrice) filter.price.$gte = Number(minPrice);
+    if (maxPrice) filter.price.$lte = Number(maxPrice);
+  }
+
+  let sortOption = { createdAt: -1 };
+  if (sortBy === 'oldest') sortOption = { createdAt: 1 };
+  if (sortBy === 'price_low') sortOption = { price: 1 };
+  if (sortBy === 'price_high') sortOption = { price: -1 };
+  if (sortBy === 'rating') sortOption = { averageRating: -1 };
 
   const products = await Product.find(filter)
     .populate('farmer', 'name place phone')
-    .sort({ createdAt: -1 });
+    .sort(sortOption);
 
   res.json(products);
 };
@@ -74,7 +80,6 @@ const updateProduct = async (req, res) => {
   }
 
   if (req.file) {
-    // Delete old image from cloudinary
     if (product.image) {
       const publicId = product.image.split('/').pop().split('.')[0];
       await cloudinary.uploader.destroy(`agrishop/products/${publicId}`);
@@ -112,37 +117,11 @@ const deleteProduct = async (req, res) => {
   res.json({ message: 'Product deleted successfully' });
 };
 
-const getAllProducts = async (req, res) => {
-  const { category, search, minPrice, maxPrice, sortBy } = req.query;
-
-  let filter = { isAvailable: true, quantity: { $gt: 0 } };
-  if (category) filter.category = category;
-  if (search) filter.name = { $regex: search, $options: 'i' };
-  if (minPrice || maxPrice) {
-    filter.price = {};
-    if (minPrice) filter.price.$gte = Number(minPrice);
-    if (maxPrice) filter.price.$lte = Number(maxPrice);
-  }
-
-  let sortOption = { createdAt: -1 };
-  if (sortBy === 'oldest') sortOption = { createdAt: 1 };
-  if (sortBy === 'price_low') sortOption = { price: 1 };
-  if (sortBy === 'price_high') sortOption = { price: -1 };
-  if (sortBy === 'rating') sortOption = { averageRating: -1 };
-
-  const products = await Product.find(filter)
-    .populate('farmer', 'name place phone')
-    .sort(sortOption);
-
-  res.json(products);
-};
-
 module.exports = {
   addProduct,
   getAllProducts,
   getProductById,
   getMyProducts,
   updateProduct,
-  deleteProduct,
-  getAllProducts
+  deleteProduct
 };
