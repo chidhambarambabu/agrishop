@@ -112,11 +112,37 @@ const deleteProduct = async (req, res) => {
   res.json({ message: 'Product deleted successfully' });
 };
 
+const getAllProducts = async (req, res) => {
+  const { category, search, minPrice, maxPrice, sortBy } = req.query;
+
+  let filter = { isAvailable: true, quantity: { $gt: 0 } };
+  if (category) filter.category = category;
+  if (search) filter.name = { $regex: search, $options: 'i' };
+  if (minPrice || maxPrice) {
+    filter.price = {};
+    if (minPrice) filter.price.$gte = Number(minPrice);
+    if (maxPrice) filter.price.$lte = Number(maxPrice);
+  }
+
+  let sortOption = { createdAt: -1 };
+  if (sortBy === 'oldest') sortOption = { createdAt: 1 };
+  if (sortBy === 'price_low') sortOption = { price: 1 };
+  if (sortBy === 'price_high') sortOption = { price: -1 };
+  if (sortBy === 'rating') sortOption = { averageRating: -1 };
+
+  const products = await Product.find(filter)
+    .populate('farmer', 'name place phone')
+    .sort(sortOption);
+
+  res.json(products);
+};
+
 module.exports = {
   addProduct,
   getAllProducts,
   getProductById,
   getMyProducts,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  getAllProducts
 };
