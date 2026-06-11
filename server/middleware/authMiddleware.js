@@ -3,7 +3,6 @@ const User = require('../models/User');
 
 const protect = async (req, res, next) => {
   let token;
-
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
       token = req.headers.authorization.split(' ')[1];
@@ -14,14 +13,13 @@ const protect = async (req, res, next) => {
       res.status(401).json({ message: 'Not authorized, invalid token' });
     }
   }
-
   if (!token) {
     res.status(401).json({ message: 'Not authorized, no token' });
   }
 };
 
 const farmerOnly = (req, res, next) => {
-  if (req.user && req.user.role === 'farmer') {
+  if (req.user && req.user.role === 'farmer' && req.user.activeMode === 'farmer') {
     next();
   } else {
     res.status(403).json({ message: 'Access denied. Farmers only.' });
@@ -29,10 +27,12 @@ const farmerOnly = (req, res, next) => {
 };
 
 const buyerOnly = (req, res, next) => {
-  if (req.user && req.user.role === 'buyer') {
+  // Allow buyers OR farmers who switched to buyer mode
+  if (req.user && (req.user.role === 'buyer' ||
+    (req.user.role === 'farmer' && req.user.activeMode === 'buyer' && req.user.canBuy))) {
     next();
   } else {
-    res.status(403).json({ message: 'Access denied. Buyers only.' });
+    res.status(403).json({ message: 'Access denied. Switch to buyer mode first.' });
   }
 };
 

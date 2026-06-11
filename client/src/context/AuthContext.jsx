@@ -8,10 +8,8 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Clear any old localStorage data
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-
     const savedToken = sessionStorage.getItem('token');
     const savedUser = sessionStorage.getItem('user');
     if (savedToken && savedUser) {
@@ -35,8 +33,13 @@ export const AuthProvider = ({ children }) => {
     sessionStorage.removeItem('user');
   };
 
+  const updateUser = (userData) => {
+    setUser(userData);
+    sessionStorage.setItem('user', JSON.stringify(userData));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, token, login, logout, loading, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

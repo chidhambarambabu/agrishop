@@ -22,7 +22,10 @@ const register = async (req, res) => {
 
   const user = await User.create({
     name, email, password: hashedPassword,
-    phone, role, place, isVerified: true
+    phone, role, place,
+    isVerified: true,
+    activeMode: role,
+    canBuy: role === 'buyer'
   });
 
   const token = generateToken(user._id);
@@ -36,7 +39,9 @@ const register = async (req, res) => {
       email: user.email,
       role: user.role,
       place: user.place,
-      isAdmin: user.isAdmin
+      isAdmin: user.isAdmin,
+      canBuy: user.canBuy,
+      activeMode: user.activeMode
     }
   });
 };
@@ -69,7 +74,9 @@ const login = async (req, res) => {
       email: user.email,
       role: user.role,
       place: user.place,
-      isAdmin: user.isAdmin
+      isAdmin: user.isAdmin,
+      canBuy: user.canBuy,
+      activeMode: user.activeMode
     }
   });
 };

@@ -9,6 +9,8 @@ const userSchema = new mongoose.Schema({
   place: { type: String, required: true },
   isVerified: { type: Boolean, default: false },
   isAdmin: { type: Boolean, default: false },
+  canBuy: { type: Boolean, default: false },
+  activeMode: { type: String, enum: ['farmer', 'buyer'], default: 'farmer' },
   otp: { type: String },
   otpExpiry: { type: Date }
 }, { timestamps: true });

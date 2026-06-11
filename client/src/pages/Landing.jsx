@@ -79,22 +79,7 @@ const Landing = () => {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="bg-green-700 py-12 px-4 text-white text-center">
-        <h2 className="text-2xl md:text-3xl font-bold mb-8">AgriShop by Numbers</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
-          {[
-            { number: '500+', label: 'Farmers Registered' },
-            { number: '10,000+', label: 'Products Listed' },
-            { number: '₹50L+', label: 'Farmer Earnings' },
-          ].map((stat, i) => (
-            <div key={i}>
-              <div className="text-3xl md:text-4xl font-bold mb-2">{stat.number}</div>
-              <div className="text-green-200 text-sm">{stat.label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
+      
 
       {/* CTA */}
       <div className="py-12 px-4 text-center bg-green-50">
@@ -120,7 +105,7 @@ const Landing = () => {
       <footer className="bg-gray-800 text-gray-400 py-8 px-4 text-center">
         <p className="text-2xl mb-2">🌾 AgriShop</p>
         <p className="text-sm">Connecting farmers directly with buyers across India.</p>
-        <p className="text-xs mt-4">© 2024 AgriShop. Built with ❤️ for Indian farmers.</p>
+        <p className="text-xs mt-4">© 2026 AgriShop. Built with ❤️ for Indian farmers.</p>
       </footer>
     </div>
   );

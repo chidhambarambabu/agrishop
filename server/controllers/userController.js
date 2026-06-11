@@ -48,5 +48,52 @@ const changePassword = async (req, res) => {
 
   res.json({ message: 'Password changed successfully' });
 };
+// ── ENABLE BUY MODE ───────────────────────────────────────────────
+const enableBuyMode = async (req, res) => {
+  const user = await User.findById(req.user._id);
+  user.canBuy = true;
+  user.activeMode = 'buyer';
+  await user.save();
+  res.json({
+    message: 'Buy mode enabled!',
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      place: user.place,
+      isAdmin: user.isAdmin,
+      canBuy: user.canBuy,
+      activeMode: user.activeMode
+    }
+  });
+};
 
-module.exports = { getProfile, updateProfile, changePassword };
+// ── SWITCH MODE ───────────────────────────────────────────────────
+const switchMode = async (req, res) => {
+  const { mode } = req.body;
+  const user = await User.findById(req.user._id);
+
+  if (mode === 'buyer' && !user.canBuy) {
+    return res.status(400).json({ message: 'Buy mode not enabled' });
+  }
+
+  user.activeMode = mode;
+  await user.save();
+
+  res.json({
+    message: `Switched to ${mode} mode`,
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      place: user.place,
+      isAdmin: user.isAdmin,
+      canBuy: user.canBuy,
+      activeMode: user.activeMode
+    }
+  });
+};
+
+module.exports = { getProfile, updateProfile, changePassword,enableBuyMode,switchMode };

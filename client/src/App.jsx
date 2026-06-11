@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
+import AIChatbot from './components/AIChatbot';
 import Landing from './pages/Landing';
 import Register from './pages/Register';
 import Login from './pages/Login';
@@ -9,12 +10,12 @@ import NotFound from './pages/NotFound';
 import Profile from './pages/Profile';
 import FarmerDashboard from './pages/farmer/FarmerDashboard';
 import AddProduct from './pages/farmer/AddProduct';
+import EditProduct from './pages/farmer/EditProduct';
 import ManageOrders from './pages/farmer/ManageOrders';
 import BuyerDashboard from './pages/buyer/BuyerDashboard';
 import ProductDetail from './pages/buyer/ProductDetail';
 import MyOrders from './pages/buyer/MyOrders';
 import AdminDashboard from './pages/admin/AdminDashboard';
-import EditProduct from './pages/farmer/EditProduct';
 
 function App() {
   return (
@@ -37,31 +38,32 @@ function App() {
           <Route path="/farmer/add-product" element={
             <ProtectedRoute role="farmer"><AddProduct /></ProtectedRoute>
           } />
+          <Route path="/farmer/edit-product/:id" element={
+            <ProtectedRoute role="farmer"><EditProduct /></ProtectedRoute>
+          } />
           <Route path="/farmer/orders" element={
             <ProtectedRoute role="farmer"><ManageOrders /></ProtectedRoute>
           } />
 
           {/* Buyer Routes */}
           <Route path="/buyer/dashboard" element={
-            <ProtectedRoute role="buyer"><BuyerDashboard /></ProtectedRoute>
+            <ProtectedRoute><BuyerDashboard /></ProtectedRoute>
           } />
           <Route path="/buyer/product/:id" element={
-            <ProtectedRoute role="buyer"><ProductDetail /></ProtectedRoute>
+            <ProtectedRoute><ProductDetail /></ProtectedRoute>
           } />
           <Route path="/buyer/orders" element={
-            <ProtectedRoute role="buyer"><MyOrders /></ProtectedRoute>
+            <ProtectedRoute><MyOrders /></ProtectedRoute>
           } />
 
           {/* Admin Routes */}
           <Route path="/admin/dashboard" element={
             <ProtectedRoute><AdminDashboard /></ProtectedRoute>
           } />
-          <Route path="/farmer/edit-product/:id" element={
-  <ProtectedRoute role="farmer"><EditProduct /></ProtectedRoute>
-} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <AIChatbot />
       </BrowserRouter>
     </AuthProvider>
   );
