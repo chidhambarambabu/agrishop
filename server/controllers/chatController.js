@@ -1,3 +1,5 @@
+const Groq = require('groq-sdk');
+
 const chat = async (req, res) => {
   const { messages, userInfo } = req.body;
 
@@ -28,82 +30,108 @@ Spices: Turmeric Rs.80-150/kg, Chilli Rs.100-200/kg, Coriander Rs.50-100/kg
 Dairy: Milk Rs.40-60/litre, Ghee Rs.400-600/kg, Paneer Rs.200-350/kg
 
 ### 3. GOVERNMENT SCHEMES
-- PM-KISAN: Rs.6000/year direct benefit transfer
-- PM Fasal Bima Yojana: crop insurance
-- Kisan Credit Card (KCC): low interest farm loans
+- PM-KISAN: Rs.6000/year direct benefit transfer to farmers
+- PM Fasal Bima Yojana: crop insurance scheme
+- Kisan Credit Card (KCC): low interest farm loans up to Rs.3 lakh
 - PM Krishi Sinchayee Yojana: irrigation subsidy
-- eNAM: National Agriculture Market platform
-- Soil Health Card scheme
-- NABARD: agricultural loans
+- eNAM: National Agriculture Market online platform
+- Soil Health Card scheme: free soil testing
+- PM Kisan Mandhan Yojana: pension Rs.3000/month after 60 years
+- NABARD: agricultural loans and rural development
 
 ### 4. WEATHER-BASED ADVICE
-- Monsoon (Jun-Sep): Best for rice, cotton, sugarcane
+- Monsoon (Jun-Sep): Best for rice, cotton, sugarcane planting
 - Winter (Oct-Feb): Best for wheat, mustard, vegetables
-- Summer (Mar-May): Good for zaid crops, more irrigation needed
+- Summer (Mar-May): Good for zaid crops, need more irrigation
+- Tips for drought, flood, frost protection
+- Rain prediction impact on harvesting timing
 
 ### 5. AGRISHOP PLATFORM HELP
-- Register as farmer or buyer
-- List products with photos, prices, quantities
-- Manage orders and update delivery status
-- Enable buy mode for farmers to also purchase
-- Use notification system, reviews and ratings
-- Pricing tips: seasonal pricing, shipping charges
+- Register as farmer or buyer at agrishop website
+- List products with photos, prices, quantities, locality
+- Manage orders and update delivery status step by step
+- Enable buy mode: farmers can also purchase from other farmers
+- Use notification bell for order updates
+- Write reviews and ratings for purchased products
+- Update profile, change password in settings
+- Pricing tips: seasonal pricing, add shipping charges
 
 ### 6. SELLING STRATEGIES
 - Best time to sell: slightly before/after peak harvest season
 - Pricing: mandi rates plus 10-15% for direct selling advantage
 - Quality grading: Grade A products fetch 20-30% more
-- Good photos and descriptions increase sales
+- Good photos in natural light increase sales significantly
+- Clear descriptions: mention variety, harvest date, farming method
 
-### 7. COMMON FARMING PROBLEMS
-- Yellow leaves: nitrogen deficiency, add urea
-- Wilting: check water and root rot
-- Holes in leaves: caterpillar attack, use Bt spray
-- White powder: powdery mildew, use sulfur spray
-- Low yield: soil testing, proper fertilization
+### 7. ORGANIC FARMING
+- Vermicompost, green manure, biofertilizers
+- Neem-based pesticides, biological pest control
+- Organic certification process in India (NPOP)
+- Premium pricing for organic produce 30-50% more
+- Companion planting, crop diversity benefits
+
+### 8. POST-HARVEST MANAGEMENT
+- Storage: cool dry place, proper ventilation
+- Grading and sorting before selling
+- Cold storage options for perishables
+- Processing for value addition to increase income
+- Reducing wastage through proper packaging and timely selling
+
+### 9. SOIL HEALTH
+- pH testing and correction (lime for acidic, sulfur for alkaline)
+- NPK deficiency symptoms and treatment
+- Organic matter improvement with compost
+- Micronutrient deficiencies: zinc, boron, iron symptoms
+- Soil conservation: contour farming, cover crops
+
+### 10. COMMON FARMING PROBLEMS & SOLUTIONS
+- Yellow leaves: nitrogen deficiency, add urea or DAP
+- Wilting plants: check water levels, root rot treatment
+- Holes in leaves: caterpillar attack, use Bt spray or neem
+- White powder on leaves: powdery mildew, use sulfur spray
+- Fruit dropping: calcium deficiency, irregular watering
+- Low yield: get soil tested, follow proper fertilization schedule
 
 ## RESPONSE STYLE:
-- Friendly, warm, encouraging to farmers
-- Simple language, avoid jargon
-- Practical, actionable advice
+- Be friendly, warm, and encouraging to farmers
+- Use simple language, avoid complex jargon
+- Give practical, actionable advice
 - Use emojis to make responses engaging
-- Keep responses 150-250 words
+- For prices say "approximately" as prices vary by region
+- Suggest consulting local Krishi Vigyan Kendra (KVK) for specific advice
+- Keep responses concise 150-250 words
 - Use bullet points for lists
+- For AgriShop features give step by step guidance
 
 ## CURRENT USER:
 Name: ${userInfo?.name || 'Visitor'}
 Role: ${userInfo?.role || 'Not logged in'}
-Place: ${userInfo?.place || 'Unknown'}`;
+Place: ${userInfo?.place || 'Unknown'}
+
+Personalize responses based on user role and location when possible.`;
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1000,
-        system: systemPrompt,
-        messages: messages
-      })
+    const groq = new Groq({
+      apiKey: process.env.GROQ_API_KEY
     });
 
-    const data = await response.json();
+    const completion = await groq.chat.completions.create({
+      model: 'llama-3.1-8b-instant',
+      max_tokens: 1000,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        ...messages
+      ]
+    });
 
-    if (data.error) {
-      console.log('Anthropic error:', data.error);
-      return res.status(500).json({ message: data.error.message });
-    }
+    const reply = completion.choices[0]?.message?.content
+      || 'Sorry, I could not process that. Please try again.';
 
-    const reply = data.content?.[0]?.text || 'Sorry, I could not process that.';
     res.json({ reply });
 
   } catch (err) {
-    console.log('Chat error:', err.message);
-    res.status(500).json({ message: 'Failed to get response from AI' });
+    console.log('Groq chat error:', err.message);
+    res.status(500).json({ message: 'Failed to get AI response: ' + err.message });
   }
 };
 
