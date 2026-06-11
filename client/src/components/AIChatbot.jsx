@@ -126,45 +126,56 @@ Place: ${user?.place || 'Unknown'}
 Personalize responses based on user role and location when possible.`;
 
   const sendMessage = async (e) => {
-    e.preventDefault();
-    if (!input.trim() || loading) return;
+  e.preventDefault();
+  if (!input.trim() || loading) return;
 
-    const userMessage = input.trim();
-    setInput('');
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
-    setLoading(true);
+  const userMessage = input.trim();
+  setInput('');
+  setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+  setLoading(true);
 
-    try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL || 'http://localhost:8080/api'}/chat`,
+      {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+        },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
-          system: systemPrompt,
           messages: [
             ...messages.map(m => ({ role: m.role, content: m.content })),
             { role: 'user', content: userMessage }
-          ]
+          ],
+          userInfo: {
+            name: user?.name,
+            role: user?.role,
+            place: user?.place
+          }
         })
-      });
+      }
+    );
 
-      const data = await response.json();
-      const assistantMessage = data.content?.[0]?.text || 'Sorry, I could not process that. Please try again.';
+    const data = await response.json();
 
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: assistantMessage
-      }]);
-    } catch (err) {
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: 'Sorry, I am having trouble connecting. Please try again later.'
-      }]);
-    } finally {
-      setLoading(false);
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to get response');
     }
-  };
+
+    setMessages(prev => [...prev, {
+      role: 'assistant',
+      content: data.reply
+    }]);
+  } catch (err) {
+    setMessages(prev => [...prev, {
+      role: 'assistant',
+      content: '❌ Sorry, I am having trouble connecting. Please try again later.'
+    }]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const quickQuestions = [
     '🌱 Best crops for monsoon season?',
